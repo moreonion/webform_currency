@@ -11,10 +11,9 @@ function _webform_defaults_country_list() {
     'name'      => 'Country List',
     'form_key'  => NULL,
     'value'     => '',
-    'weight'    => 0,
     'extra' => array(
-      'available_countries'      => array(),
-      'private'                  => FALSE,
+      'available_countries' => array(),
+      'private'             => FALSE,
     ),
   );
 
@@ -25,7 +24,8 @@ function _webform_defaults_country_list() {
  * Implements _webform_edit_[component]().
  */
 function _webform_edit_country_list($component) {
-  $all_countries  = array('AT' => 'Austria', 'DE' => 'Germany', 'ES' => 'Spain');
+  include_once drupal_get_path('module', 'webform') . '/includes/webform.options.inc';
+  $all_countries  = $country_list = webform_options_countries(NULL, NULL, NULL, NULL);
   $delta          = 0;
   $nrAllCountries = count($all_countries);
   $form           = array(
@@ -55,6 +55,7 @@ function _webform_edit_country_list($component) {
     $form['country_list'][$delta]['label'] = array(
       '#markup' => '<span class="country-list-country">' . $country . '</span>',
     );
+
     $form['country_list'][$delta]['#delta']  = $delta;
     $form['country_list'][$delta]['#weight'] = $delta;
     $form['country_list'][$delta]['_weight'] = array(
@@ -90,17 +91,19 @@ function _webform_edit_country_list_validate(&$element, &$form_state) {
  * Implements _webform_render_[component]().
  */
 function _webform_render_country_list($component, $value = NULL, $filter = TRUE) {
-  $all_countries = array('AT' => 'Austria', 'DE' => 'Germany', 'ES' => 'Spain');
+  include_once drupal_get_path('module', 'webform') . '/includes/webform.options.inc';
+  $all_countries       = $country_list = webform_options_countries(NULL, NULL, NULL, NULL);
   $available_countries = array();
-  if (!empty($component['extra']['available_countries'])) {
-    $available_countries = array_intersect_key($all_countries, $component['extra']['available_countries']);
+  foreach ($component['extra']['available_countries'] as $country_code) {
+    $available_countries[$country_code] = $all_countries[$country_code];
   }
-  else {
+  if (count($available_countries) == 0) {
     $available_countries = $all_countries;
   }
   $element = array(
-    '#type' => 'select',
+    '#type'    => 'select',
     '#options' => $available_countries,
+    '#weight'  => isset($component['weight']) == TRUE ? $component['weight'] : 0,
   );
 
   return $element;
@@ -121,6 +124,7 @@ function webform_country_list_webform_component_info() {
 
   return $components;
 }
+
 /**
  * Implements hook_theme().
  */
@@ -142,9 +146,15 @@ function theme_country_list_form($variables) {
   $header = array(
     '',
     array(
-      'data' => '<div class="country-list-table-header"><label class="country-list-label-available">' . t('Available') . '</label>' . '<label class="country-list-label-code">' . t('Country Code') . '</label>' . '<label class="country-list-label-country">' . t('Country') . '</label></div>',
+      'data' => '<div class="country-list-table-header">' .
+        '<label class="country-list-label-available">' . t('Available') .
+        '</label>' .
+        '<label class="country-list-label-code">' . t('Country Code') .
+        '</label>' .
+        '<label class="country-list-label-country">' . t('Country') .
+        '</label></div>',
       'class' => array('field-label'),
-       'colspan' => 2,
+      'colspan' => 2,
       t('Order'),
     ),
   );
@@ -165,7 +175,7 @@ function theme_country_list_form($variables) {
       array('data' => $delta_element, 'class' => array('delta-order'))
     );
     $rows[] = array(
-      'data' => $cells,
+      'data'  => $cells,
       'class' => array('draggable'),
     );
   }
