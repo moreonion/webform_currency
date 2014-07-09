@@ -2,7 +2,7 @@ Purpose of this module
 ======================
 
 webform_country_list is a simple addon module for the webform module that
-defines a new webform component.
+defines a new webform component. It is compatible with webform version 3.
 
 It's a webform component that lets the user select a country out of a list that
 you can configure.
@@ -11,6 +11,10 @@ To configure, you choose a set of countries (out of the complete list of all
 countries) that can be selected. You can also change the order in which they
 appear in the select box.
 
+Related modules
+===============
+
+[countries] https://www.drupal.org/project/countries
 
 Configuration
 =============

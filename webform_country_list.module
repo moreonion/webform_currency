@@ -42,25 +42,30 @@ function _webform_edit_country_list($component) {
   }
   $all_countries = $avail_countries + $all_countries;
   foreach ($all_countries as $country_code => $country) {
-    $form['country_list'][$delta] = array(
+    $form_entry = &$form['country_list'][$delta];
+    $form_entry = array(
       '#type' => 'container',
     );
-    $form['country_list'][$delta]['available'] = array(
+    $form_entry['available'] = array(
       '#type'          => 'checkbox',
       '#return_value'  => $country_code,
-      '#default_value' => !empty($component['extra']['available_countries'][$country_code]) ? $component['extra']['available_countries'][$country_code] : NULL,
+      '#default_value' => isset($avail_countries[$country_code]) ? $country_code : NULL,
       '#attributes'    => array('class' => array('country-list-available')),
     );
-    $form['country_list'][$delta]['country_code'] = array(
-      '#markup' => '<span class="country-list-code">' . $country_code . '</span>',
+    $form_entry['country_code'] = array(
+      '#markup' => $country_code,
+      '#prefix' => '<span class="country-list-code">',
+      '#suffix' => '</span>',
     );
-    $form['country_list'][$delta]['label'] = array(
-      '#markup' => '<span class="country-list-country">' . $country . '</span>',
+    $form_entry['label'] = array(
+      '#markup' => $country,
+      '#prefix' => '<span class="country-list-country">', 
+      '#suffix' => '</span>',
     );
 
-    $form['country_list'][$delta]['#delta']  = $delta;
-    $form['country_list'][$delta]['#weight'] = $delta;
-    $form['country_list'][$delta]['_weight'] = array(
+    $form_entry['#delta']  = $delta;
+    $form_entry['#weight'] = $delta;
+    $form_entry['_weight'] = array(
       '#type'          => 'weight',
       '#title'         => t('Weight for row @number', array('@number' => $delta + 1)),
       '#title_display' => 'invisible',
@@ -105,14 +110,14 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   foreach ($component['extra']['available_countries'] as $country_code) {
     $available_countries[$country_code] = $all_countries[$country_code];
   }
-  if (count($available_countries) == 0) {
+  if (empty($available_countries)) {
     $available_countries = $all_countries;
   }
   $element = array(
     '#type'    => 'select',
     '#title'   => $component['name'],
     '#options' => $available_countries,
-    '#weight'  => isset($component['weight']) == TRUE ? $component['weight'] : 0,
+    '#weight'  => isset($component['weight']) ? $component['weight'] : 0,
   );
 
   return $element;
