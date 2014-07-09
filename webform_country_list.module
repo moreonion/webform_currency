@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Implementation that uses the webform API to define a webform component that
- * provides a configurable webform country select component
+ * Implementation using the webform API to define a webform component.
  */
 
 /**
@@ -28,7 +27,7 @@ function _webform_defaults_country_list() {
  */
 function _webform_edit_country_list($component) {
   include_once DRUPAL_ROOT . '/includes/locale.inc';
-  $all_countries    = country_get_list(); 
+  $all_countries    = country_get_list();
   $delta            = 0;
   $nr_all_countries = count($all_countries);
   $form             = array(
@@ -78,18 +77,18 @@ function _webform_edit_country_list($component) {
 }
 
 /**
- * helper function for usort
+ * Helper function for usort.
  */
 function _webform_country_list_cmp_weights($a, $b) {
   return ($a['_weight'] - $b['_weight']);
 }
 
 /**
- * validation function set in _webform_edit_country_list
+ * Validation function set in _webform_edit_country_list.
  */
 function _webform_country_list_edit_validate(&$element, &$form_state) {
   usort($form_state['values']['country_list'], '_webform_country_list_cmp_weights');
-  foreach ($form_state['values']['country_list'] as $delta => $value) {
+  foreach ($form_state['values']['country_list'] as $value) {
     if ($value['available'] !== 0) {
       $form_state['values']['extra']['available_countries'][$value['available']] = $value['available'];
     }
@@ -101,7 +100,7 @@ function _webform_country_list_edit_validate(&$element, &$form_state) {
  */
 function _webform_render_country_list($component, $value = NULL, $filter = TRUE) {
   include_once DRUPAL_ROOT . '/includes/locale.inc';
-  $all_countries       = country_get_list(); 
+  $all_countries       = country_get_list();
   $available_countries = array();
   foreach ($component['extra']['available_countries'] as $country_code) {
     $available_countries[$country_code] = $all_countries[$country_code];
@@ -147,8 +146,9 @@ function webform_country_list_theme() {
 }
 
 /**
- * Code partially copied from field_multiple_value_form
- * Creates output for a table with header and rows containing all countries
+ * Creates output for a table with header and rows containing all countries.
+ *
+ * Code partially copied from field_multiple_value_form.
  */
 function theme_country_list_form($variables) {
   $element  = $variables['element'];
@@ -168,9 +168,8 @@ function theme_country_list_form($variables) {
         '<label class="country-list-label-country">' . t('Country') .
         '</label></div>',
       'class' => array('field-label'),
-      'colspan' => 2,
-      t('Order'),
     ),
+    t('Order'),
   );
   $rows = array();
 
