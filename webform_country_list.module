@@ -59,7 +59,7 @@ function _webform_edit_country_list($component) {
     );
     $form_entry['label'] = array(
       '#markup' => $country,
-      '#prefix' => '<span class="country-list-country">', 
+      '#prefix' => '<span class="country-list-country">',
       '#suffix' => '</span>',
     );
 
