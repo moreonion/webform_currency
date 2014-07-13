@@ -217,4 +217,3 @@ function theme_country_list_form($variables) {
 
   return $output;
 }
-
