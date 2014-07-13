@@ -34,4 +34,3 @@ Nothing special, if you're using drush that would be
 drush dl webform_country_list
 
 drush en webform_country_list -y
-
