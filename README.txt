@@ -11,6 +11,10 @@ To configure, you choose a set of countries (out of the complete list of all
 countries) that can be selected. You can also change the order in which they
 appear in the select box.
 
+If the PHP PECL package geoip is available and it detects the country
+of the visitor, and this country is in the list of available countries,
+webform_country_list preselect the geoip country as default.
+
 Related modules
 ===============
 

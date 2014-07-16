@@ -107,17 +107,29 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
   $available_countries = array();
+
   foreach ($component['extra']['available_countries'] as $country_code) {
     $available_countries[$country_code] = $all_countries[$country_code];
   }
   if (empty($available_countries)) {
     $available_countries = $all_countries;
   }
+  reset($available_countries);
+  $default_ctry = key($available_countries);
+  // if the PHP PECL geoip package is available set the default country to that
+  // matching the geoip country
+  if (function_exists('geoip_country_code_by_name')) {
+    $geoip_ctry_code = @geoip_country_code_by_name(ip_address());
+    if (isset($available_countries[$geoip_ctry_code])) {
+      $default_ctry = $geoip_ctry_code;
+    }
+  }
   $element = array(
-    '#type'    => 'select',
-    '#title'   => $component['name'],
-    '#options' => $available_countries,
-    '#weight'  => isset($component['weight']) ? $component['weight'] : 0,
+    '#type'          => 'select',
+    '#title'         => $component['name'],
+    '#options'       => $available_countries,
+    '#default_value' => $default_ctry,
+    '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
   );
 
   return $element;
