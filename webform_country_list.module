@@ -121,11 +121,11 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   reset($available_countries);
   $default_ctry = key($available_countries);
   // If the PHP PECL geoip package is available set the default country to that
-  // matching the geoip country
+  // matching the geoip country.
   if (function_exists('geoip_country_code_by_name')) {
     // We use the PHP PECL geoip package to look up the IP address of the
     // user in the geoip IP database in order to find a matching country.
-    // We get back the ISO country code for the user
+    // We get back the ISO country code for the user.
     $geoip_ctry_code = @geoip_country_code_by_name(ip_address());
     if (isset($available_countries[$geoip_ctry_code])) {
       $default_ctry = $geoip_ctry_code;
