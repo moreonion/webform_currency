@@ -32,7 +32,10 @@ function _webform_edit_country_list($component) {
   $nr_all_countries = count($all_countries);
   $form             = array(
     'country_list' => array(
-      '#type' => 'container',
+      '#type'     => 'container',
+      '#attached' => array(
+        'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css')
+      ),
     ),
   );
   $avail_countries = $component['extra']['available_countries'];
@@ -104,6 +107,7 @@ function _webform_country_list_edit_validate(&$element, &$form_state) {
  * Implements _webform_render_[component]().
  */
 function _webform_render_country_list($component, $value = NULL, $filter = TRUE) {
+  // necessary for country_get_list()
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
   $available_countries = array();
@@ -119,6 +123,9 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   // if the PHP PECL geoip package is available set the default country to that
   // matching the geoip country
   if (function_exists('geoip_country_code_by_name')) {
+    // we use the PHP PECL geoip package to look up the IP address of the
+    // user in the geoip IP database in order to find a matching country;
+    // we get back the ISO country code for the user
     $geoip_ctry_code = @geoip_country_code_by_name(ip_address());
     if (isset($available_countries[$geoip_ctry_code])) {
       $default_ctry = $geoip_ctry_code;
@@ -228,4 +235,19 @@ function theme_country_list_form($variables) {
   drupal_add_tabledrag($table_id, 'order', 'sibling', $order_class);
 
   return $output;
+}
+
+/**
+ * Implements hook_help().
+ */
+function webform_country_list_help($path, $arg) {
+  if ($path === 'admin/help#webform_country_list') {
+       return '<h3>Configuration</h3>
+When adding a Country List component to your webform you\'ll see
+the component edit form.
+Here, in the list of all countries, select those you want to include
+in your selection list by checking the "available" box.
+You can also change the ordering of the available countries by 
+dragging and dropping lines up or down.';
+  }
 }

@@ -3,5 +3,3 @@ description = Webform component for a customizable country list
 core = "7.x"
 
 dependencies[] = webform
-
-stylesheets[all][] = webform_country_list.css
