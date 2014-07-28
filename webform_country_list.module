@@ -134,6 +134,7 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   $element = array(
     '#type'          => 'select',
     '#title'         => $component['name'],
+    '#description'   => $component['extra']['description'],
     '#options'       => $available_countries,
     '#default_value' => $default_ctry,
     '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
