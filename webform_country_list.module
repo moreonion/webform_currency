@@ -73,7 +73,7 @@ function _webform_edit_country_list($component) {
       '#title'         => t('Weight for row @number', array('@number' => $delta + 1)),
       '#title_display' => 'invisible',
       '#delta'         => $nr_all_countries,
-      '#default_value' => isset($country['_weight']) ? $country['_weight'] : $delta,
+      '#default_value' => $delta,
       '#weight'        => 100,
     );
     $delta++;
