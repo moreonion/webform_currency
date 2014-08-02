@@ -134,7 +134,7 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   $element = array(
     '#type'          => 'select',
     '#title'         => $component['name'],
-    '#description'   => $component['extra']['description'],
+    '#description'   => check_plain($component['extra']['description']),
     '#options'       => $available_countries,
     '#default_value' => $default_ctry,
     '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
@@ -243,12 +243,12 @@ function theme_country_list_form($variables) {
  */
 function webform_country_list_help($path, $arg) {
   if ($path === 'admin/help#webform_country_list') {
-    return '<h3>Configuration</h3>
-When adding a Country List component to your webform you\'ll see
+    return '<h3>' . t('Configuration') . '</h3>' .
+t('When adding a Country List component to your webform you\'ll see
 the component edit form.
 Here, in the list of all countries, select those you want to include
 in your selection list by checking the "available" box.
 You can also change the ordering of the available countries by 
-dragging and dropping lines up or down.';
+dragging and dropping lines up or down.');
   }
 }
