@@ -160,11 +160,30 @@ function webform_country_list_webform_component_info() {
 }
 
 /**
- * Implements hook_theme().
+ * Implements _webform_display_component().
  */
-function webform_country_list_theme() {
+function _webform_display_country_list($component, $value, $format = 'html') {
+  return array(
+    '#title' => $component['name'],
+    '#weight' => $component['weight'],
+    '#theme' => 'webform_display_country_list',
+    '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
+    '#post_render' => array('webform_element_wrapper'),
+    '#component' => $component,
+    '#format' => $format,
+    '#value' => isset($value) ? $value[0] : '',
+  );
+}
+
+/**
+ * Implements _webform_theme_component().
+ */
+function _webform_theme_country_list() {
   return array(
     'country_list_form' => array(
+      'render element' => 'element',
+    ),
+    'webform_display_country_list' => array(
       'render element' => 'element',
     ),
   );
@@ -236,6 +255,52 @@ function theme_country_list_form($variables) {
   drupal_add_tabledrag($table_id, 'order', 'sibling', $order_class);
 
   return $output;
+}
+
+/**
+ * Returns HTML for displaying the selected country (code).
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #format, #value.
+ *
+ * @see theme_webform_element
+ *
+ * @ingroup themeable
+ */
+function theme_webform_display_country_list(array $variables) {
+  $element = $variables['element'];
+  $value = $element['#format'] == 'html' ? check_plain($element['#value']) : $element['#value'];
+
+  return $value !== '' ? $value : ' ';
+}
+
+/**
+ * Implements _webform_table_component().
+ */
+function _webform_table_country_list($component, $value) {
+  return !empty($value[0]) ? check_plain($value[0]) : '';
+}
+
+/**
+ * Implements _webform_csv_headers_component().
+ */
+function _webform_csv_headers_country_list($component, $export_options) {
+  $header = array();
+
+  $header[0] = array('');
+  $header[1] = array('');
+  $header[2] = $component['name'];
+
+  return $header;
+}
+
+/**
+ * Implements _webform_csv_data_component().
+ */
+function _webform_csv_data_country_list($component, $export_options, $value) {
+  return isset($value[0]) ? $value[0] : '';
 }
 
 /**
