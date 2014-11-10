@@ -14,7 +14,6 @@ function webform_country_list_webform_component_info() {
     'description' => t('Provides a selectable list of countries for a webform.'),
     'features'    => array(
       'default_value' => FALSE,
-      'required'      => TRUE,
     ),
     'file' => 'webform_country_list.component.inc',
   );
