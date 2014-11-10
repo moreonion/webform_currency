@@ -16,7 +16,6 @@ function _webform_defaults_country_list() {
     'extra'    => array(
       'available_countries' => array(),
       'private'             => FALSE,
-      'description'         => '',
     ),
   );
 
@@ -104,7 +103,6 @@ function _webform_country_list_edit_validate(&$element, &$form_state) {
       $form_state['values']['extra']['available_countries'][$value['available']] = $value['available'];
     }
   }
-  //dpm($form_state, 'form_state');
 }
 
 /**
@@ -138,7 +136,7 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
   $element = array(
     '#type'          => 'select',
     '#title'         => $component['name'],
-    '#description'   => check_plain($component['extra']['description']),
+    '#description'   => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
     '#options'       => $available_countries,
     '#default_value' => $default_ctry,
     '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
@@ -180,7 +178,6 @@ function _webform_form_builder_properties_country_list() {
  * Callback set in _webform_form_builder_properties_country_list().
  */
 function webform_country_list_form_builder_property_country_list_form(&$form_state, $form_type, $element, $property) {
-
   $form['extra'] = array(
     '#form_builder' => array('property_group' => 'options'),
     '#tree'         => TRUE,
