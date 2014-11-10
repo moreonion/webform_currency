@@ -23,17 +23,6 @@ function webform_country_list_webform_component_info() {
 }
 
 /**
- * Implements hook_theme().
- */
-function webform_country_list_theme() {
-  return array(
-    'country_list_form' => array(
-      'render element' => 'element',
-    ),
-  );
-}
-
-/**
  * Creates output for a table with header and rows containing all countries.
  *
  * Code partially copied from field_multiple_value_form.
@@ -102,6 +91,25 @@ function theme_country_list_form($variables) {
 }
 
 /**
+ * Returns HTML for displaying the selected country (code).
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #format, #value.
+ *
+ * @see theme_webform_element
+ *
+ * @ingroup themeable
+ */
+function theme_webform_display_country_list(array $variables) {
+  $element = $variables['element'];
+  $value = $element['#format'] == 'html' ? check_plain($element['#value']) : $element['#value'];
+
+  return $value !== '' ? $value : ' ';
+}
+
+/**
  * Implements hook_help().
  */
 function webform_country_list_help($path, $arg) {
@@ -111,7 +119,7 @@ t('When adding a Country List component to your webform you\'ll see
 the component edit form.
 Here, in the list of all countries, select those you want to include
 in your selection list by checking the "available" box.
-You can also change the ordering of the available countries by 
+You can also change the ordering of the available countries by
 dragging and dropping lines up or down.');
   }
 }

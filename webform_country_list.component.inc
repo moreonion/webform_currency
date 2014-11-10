@@ -146,6 +146,69 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
 }
 
 /**
+ * Implements _webform_display_[component]().
+ */
+function _webform_display_country_list($component, $value, $format = 'html') {
+  return array(
+    '#title'          => $component['name'],
+    '#weight'         => $component['weight'],
+    '#theme'          => 'webform_display_country_list',
+    '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
+    '#post_render'    => array('webform_element_wrapper'),
+    '#component'      => $component,
+    '#format'         => $format,
+    '#value'          => isset($value) ? $value[0] : '',
+  );
+}
+
+/**
+ * Implements _webform_theme_[component]().
+ */
+function _webform_theme_country_list() {
+  return array(
+    'country_list_form' => array(
+      'render element' => 'element',
+    ),
+    'webform_display_country_list' => array(
+      'render element' => 'element',
+    ),
+  );
+}
+
+/**
+ * Implements _webform_table_[component]().
+ */
+function _webform_table_country_list($component, $value) {
+  return !empty($value[0]) ? check_plain($value[0]) : '';
+}
+
+/**
+ * Implements _webform_csv_headers_[component]().
+ */
+function _webform_csv_headers_country_list($component, $export_options) {
+  $header = array();
+
+  $header[0] = array('');
+  $header[1] = array('');
+  $header[2] = $component['name'];
+
+  return $header;
+}
+
+/**
+ * Implements _webform_csv_data_[component]().
+ */
+function _webform_csv_data_country_list($component, $export_options, $value) {
+  return isset($value[0]) ? $value[0] : '';
+}
+
+
+/**********************************************************************/
+/******************* FORM BUILDER INTEGRATION *************************/
+/**********************************************************************/
+
+
+/**
  * Implements _webform_form_builder_map_[form_builder type]().
  */
 function _webform_form_builder_map_country_list() {
