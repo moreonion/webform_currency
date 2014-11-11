@@ -14,7 +14,6 @@ function webform_country_list_webform_component_info() {
     'description' => t('Provides a selectable list of countries for a webform.'),
     'features'    => array(
       'default_value' => FALSE,
-      'required'      => TRUE,
     ),
     'file' => 'webform_country_list.component.inc',
   );
@@ -26,8 +25,20 @@ function webform_country_list_webform_component_info() {
  * Creates output for a table with header and rows containing all countries.
  *
  * Code partially copied from field_multiple_value_form.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #format, #value.
+ *
+ * @return string
+ *   HTML output defining a table with a list of countries
+ *
+ * @see theme_webform_element
+ *
+ * @ingroup themeable
  */
-function theme_country_list_form($variables) {
+function theme_country_list_form(array $variables) {
   $element  = $variables['element'];
   $output   = '';
   $table_id = drupal_html_id('country_list_values');
@@ -112,15 +123,15 @@ function theme_webform_display_country_list(array $variables) {
 /**
  * Implements hook_help().
  */
-function webform_country_list_help($path, $arg) {
+function webform_country_list_help($path, array $arg) {
   if ($path === 'admin/help#webform_country_list') {
     return '<h3>' . t('Configuration') . '</h3>' .
-t('When adding a Country List component to your webform you\'ll see
+    t("When adding a Country List component to your webform you'll see
 the component edit form.
 Here, in the list of all countries, select those you want to include
-in your selection list by checking the "available" box.
+in your selection list by checking the \"available\" box.
 You can also change the ordering of the available countries by
-dragging and dropping lines up or down.');
+dragging and dropping lines up or down.");
   }
 }
 

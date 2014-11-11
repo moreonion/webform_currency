@@ -1,5 +1,6 @@
 name = Webform Country List
 description = Webform component for a customizable country list
 core = "7.x"
+package = Webform
 
 dependencies[] = webform

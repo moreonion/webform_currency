@@ -2,11 +2,14 @@
 
 /**
  * @file
- * Implementation using the webform API to define a webform component.
+ * Implementation of the webform component using the webform API.
  */
 
 /**
  * Implements _webform_defaults_[component]().
+ *
+ * @return array
+ *   An webform component array initialized with default values.
  */
 function _webform_defaults_country_list() {
   $element = array(
@@ -24,8 +27,18 @@ function _webform_defaults_country_list() {
 
 /**
  * Implements _webform_edit_[component]().
+ *
+ * Every country_list components stores the list of countries selected by the
+ * user (available countries) in that order in the DB. Only the ISO codes are
+ * saved in the DB.
+ *
+ * @param array $component
+ *   A Webform component array.
+ *
+ * @return array
+ *   An array of form items to be displayed on the edit component page.
  */
-function _webform_edit_country_list($component) {
+function _webform_edit_country_list(array $component) {
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries    = country_get_list();
   $delta            = 0;
@@ -40,11 +53,16 @@ function _webform_edit_country_list($component) {
       ),
     ),
   );
+  // Get the list of countries previously stored for this component.
+  // The order is the same as in the DB.
   $avail_countries = $component['extra']['available_countries'];
+  // Only country ISO codes are stored in the DB, get the country names.
   foreach ($avail_countries as $country_code) {
     $avail_countries[$country_code] = &$all_countries[$country_code];
     unset($all_countries[$country_code]);
   }
+  // Prepare the complete country list: first the previously selected countries,
+  // then the rest.
   $all_countries = $avail_countries + $all_countries;
   foreach ($all_countries as $country_code => $country) {
     $form_entry = &$form['extra']['country_list'][$delta];
@@ -87,17 +105,40 @@ function _webform_edit_country_list($component) {
 }
 
 /**
- * Helper function for usort.
+ * Determines if parameter (weight) A is greater than B.
+ *
+ * Callback for usort() within _webform_country_list_edit_validate().
+ *
+ * @param array $a
+ *   First country list entry to compare.
+ * @param array $b
+ *   Second country list entry to compare.
+ *
+ * @return int
+ *   A value greater than 0 if $a is greater than $b, 0 if they're the same
+ *   and a value smaller than 0 if $a is smaller than $b
  */
-function _webform_country_list_cmp_weights($a, $b) {
+function _webform_country_list_cmp_weights(array $a, array $b) {
   return ($a['_weight'] - $b['_weight']);
 }
 
 /**
- * Validation function set in _webform_edit_country_list.
+ * Implements callback_form_element_validate() for country_list elements.
+ *
+ * Ensures the countries are ordered in the form values array like the user did
+ * in the UI. Selects those countries that where enabled by the user to be saved
+ * for this component in the DB.
+ *
+ * @param array $element
+ *   An form API element array.
+ * @param array $form_state
+ *   An form API array of the state of the form.
  */
-function _webform_country_list_edit_validate(&$element, &$form_state) {
+function _webform_country_list_edit_validate(array &$element, array &$form_state) {
+  // Sort the array by the values of their weight so it reflects the ordering
+  // the user chose in the UI.
   usort($form_state['values']['extra']['country_list'], '_webform_country_list_cmp_weights');
+  // Save those countries chosen by the user to save them later in the DB.
   foreach ($form_state['values']['extra']['country_list'] as $value) {
     if ($value['available'] !== 0) {
       $form_state['values']['extra']['available_countries'][$value['available']] = $value['available'];
@@ -107,8 +148,23 @@ function _webform_country_list_edit_validate(&$element, &$form_state) {
 
 /**
  * Implements _webform_render_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param array $value
+ *   If editing an existing submission or resuming a draft, this will contain
+ *   an array of values to be shown instead of the default in the component
+ *   configuration. This value will always be an array, keyed numerically for
+ *   each value saved in this field.
+ * @param bool $filter
+ *   Whether or not to filter the contents of descriptions and values when
+ *   rendering the component. Values need to be unfiltered to be editable by
+ *   Form Builder.
+ *
+ * @return array
+ *   A renderable array
  */
-function _webform_render_country_list($component, $value = NULL, $filter = TRUE) {
+function _webform_render_country_list(array $component, array $value = NULL, $filter = TRUE) {
   // Necessary for country_get_list()
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
@@ -134,12 +190,14 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
     }
   }
   $element = array(
-    '#type'          => 'select',
-    '#title'         => $component['name'],
-    '#description'   => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
-    '#options'       => $available_countries,
-    '#default_value' => $default_ctry,
-    '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
+    '#type'           => 'select',
+    '#title'          => $component['name'],
+    '#title_display'  => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
+    '#description'    => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
+    '#options'        => $available_countries,
+    '#default_value'  => $default_ctry,
+    '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
+    '#theme_wrappers' => array('webform_element'),
   );
 
   return $element;
@@ -147,8 +205,21 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
 
 /**
  * Implements _webform_display_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param array $value
+ *   An array of information containing the submission result, directly
+ *   correlating to the webform_submitted_data database table schema.
+ * @param string $format
+ *   Either 'html' or 'text'. Defines the format that the content should be
+ *   returned as. Make sure that returned content is run through check_plain()
+ *   or other filtering functions when returning HTML.
+ *
+ * @return array
+ *   A renderable element
  */
-function _webform_display_country_list($component, $value, $format = 'html') {
+function _webform_display_country_list(array $component, array $value, $format = 'html') {
   return array(
     '#title'          => $component['name'],
     '#weight'         => $component['weight'],
@@ -163,6 +234,9 @@ function _webform_display_country_list($component, $value, $format = 'html') {
 
 /**
  * Implements _webform_theme_[component]().
+ *
+ * @return array
+ *   An associative array of theme hook information.
  */
 function _webform_theme_country_list() {
   return array(
@@ -177,15 +251,33 @@ function _webform_theme_country_list() {
 
 /**
  * Implements _webform_table_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param array $value
+ *   An array of information containing the submission result, directly
+ *   correlating to the webform_submitted_data database schema.
+ *
+ * @return string
+ *   Textual output formatted for human reading.
  */
-function _webform_table_country_list($component, $value) {
+function _webform_table_country_list(array $component, array $value) {
   return !empty($value[0]) ? check_plain($value[0]) : '';
 }
 
 /**
  * Implements _webform_csv_headers_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param array $export_options
+ *   An array of options that may configure export of this field.
+ *
+ * @return array
+ *   An array of data to be displayed in the first three rows of a CSV file, not
+ *   including either prefixed or trailing commas.
  */
-function _webform_csv_headers_country_list($component, $export_options) {
+function _webform_csv_headers_country_list(array $component, array $export_options) {
   $header = array();
 
   $header[0] = array('');
@@ -197,8 +289,21 @@ function _webform_csv_headers_country_list($component, $export_options) {
 
 /**
  * Implements _webform_csv_data_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param array $export_options
+ *   An array of options that may configure export of this field.
+ * @param array $value
+ *   An array of information containing the submission result, directly
+ *   correlating to the webform_submitted_data database schema.
+ *
+ * @return string
+ *   An array of items to be added to the CSV file. Each value within the array
+ *   will be another column within the file. This function is called once for
+ *   every row of data.
  */
-function _webform_csv_data_country_list($component, $export_options, $value) {
+function _webform_csv_data_country_list(array $component, array $export_options, array $value) {
   return isset($value[0]) ? $value[0] : '';
 }
 
@@ -260,3 +365,4 @@ function webform_country_list_form_builder_property_country_list_form(&$form_sta
 function webform_country_list_form_builder_property_country_list_form_submit(&$form, &$form_state) {
   $form_state['values']['available_countries'] = $form_state['values']['extra']['available_countries'];
 }
+
