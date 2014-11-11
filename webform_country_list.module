@@ -7,6 +7,9 @@
 
 /**
  * Implements hook_webform_component_info().
+ *
+ * @return
+ *   An array of components, keyed by machine name.
  */
 function webform_country_list_webform_component_info() {
   $components['country_list'] = array(
@@ -25,6 +28,17 @@ function webform_country_list_webform_component_info() {
  * Creates output for a table with header and rows containing all countries.
  *
  * Code partially copied from field_multiple_value_form.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #format, #value.
+ * @return
+ *   HTML output defining a table with a list of countries
+ *
+ * @see theme_webform_element
+ *
+ * @ingroup themeable
  */
 function theme_country_list_form($variables) {
   $element  = $variables['element'];
@@ -110,6 +124,13 @@ function theme_webform_display_country_list(array $variables) {
 
 /**
  * Implements hook_help().
+ *
+ * @param $path
+ *   The router menu path.
+ * @param $arg
+ *   An array that corresponds to the return value of the arg() function.
+ * @return
+ *   A localized string containing the help text.
  */
 function webform_country_list_help($path, $arg) {
   if ($path === 'admin/help#webform_country_list') {
