@@ -38,7 +38,7 @@ function webform_country_list_webform_component_info() {
  *
  * @ingroup themeable
  */
-function theme_country_list_form($variables) {
+function theme_country_list_form(array $variables) {
   $element  = $variables['element'];
   $output   = '';
   $table_id = drupal_html_id('country_list_values');
@@ -122,16 +122,8 @@ function theme_webform_display_country_list(array $variables) {
 
 /**
  * Implements hook_help().
- *
- * @param string $path
- *   The router menu path.
- * @param array $arg
- *   An array that corresponds to the return value of the arg() function.
- *
- * @return
- *   A localized string containing the help text.
  */
-function webform_country_list_help($path, $arg) {
+function webform_country_list_help($path, array $arg) {
   if ($path === 'admin/help#webform_country_list') {
     return '<h3>' . t('Configuration') . '</h3>' .
     t("When adding a Country List component to your webform you'll see

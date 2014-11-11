@@ -32,13 +32,13 @@ function _webform_defaults_country_list() {
  * user (available countries) in that order in the DB. Only the ISO codes are
  * saved in the DB.
  *
- * @param $component
+ * @param array  $component
  *   A Webform component array.
  *
  * @return array
  *   An array of form items to be displayed on the edit component page.
  */
-function _webform_edit_country_list($component) {
+function _webform_edit_country_list(array $component) {
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries    = country_get_list();
   $delta            = 0;
@@ -105,18 +105,18 @@ function _webform_edit_country_list($component) {
 /**
  * Determines if parameter (weight) A is greater than B.
  *
+ * Callback for usort() within _webform_country_list_edit_validate().
+ *
  * @param array $a
- *   First country list entry to compare
+ *   First country list entry to compare.
  * @param array $b
- *   Second country list entry to compare
+ *   Second country list entry to compare.
  *
  * @return int
  *   A value greater than 0 if $a is greater than $b, 0 if they're the same
  *   and a value smaller than 0 if $a is smaller than $b
- *
- * Callback for usort() within _webform_country_list_edit_validate().
  */
-function _webform_country_list_cmp_weights($a, $b) {
+function _webform_country_list_cmp_weights(array $a, array $b) {
   return ($a['_weight'] - $b['_weight']);
 }
 
@@ -128,9 +128,11 @@ function _webform_country_list_cmp_weights($a, $b) {
  * for this component in the DB.
  *
  * @param array $element
+ *   An form API element array.
  * @param array $form_state
+ *   An form API array of the state of the form.
  */
-function _webform_country_list_edit_validate(&$element, &$form_state) {
+function _webform_country_list_edit_validate(array &$element, array &$form_state) {
   // Sort the array by the values of their weight so it reflects the ordering
   // the user chose in the UI.
   usort($form_state['values']['country_list'], '_webform_country_list_cmp_weights');
@@ -160,7 +162,7 @@ function _webform_country_list_edit_validate(&$element, &$form_state) {
  * @return array
  *   A renderable array
  */
-function _webform_render_country_list($component, $value = NULL, $filter = TRUE) {
+function _webform_render_country_list(array $component, array $value = NULL, $filter = TRUE) {
   // Necessary for country_get_list()
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
@@ -215,7 +217,7 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
  * @return array
  *   A renderable element
  */
-function _webform_display_country_list($component, $value, $format = 'html') {
+function _webform_display_country_list(array $component, array $value, $format = 'html') {
   return array(
     '#title'          => $component['name'],
     '#weight'         => $component['weight'],
@@ -257,7 +259,7 @@ function _webform_theme_country_list() {
  * @return string
  *   Textual output formatted for human reading.
  */
-function _webform_table_country_list($component, $value) {
+function _webform_table_country_list(array $component, array $value) {
   return !empty($value[0]) ? check_plain($value[0]) : '';
 }
 
@@ -273,7 +275,7 @@ function _webform_table_country_list($component, $value) {
  *   An array of data to be displayed in the first three rows of a CSV file, not
  *   including either prefixed or trailing commas.
  */
-function _webform_csv_headers_country_list($component, $export_options) {
+function _webform_csv_headers_country_list(array $component, array $export_options) {
   $header = array();
 
   $header[0] = array('');
@@ -299,7 +301,6 @@ function _webform_csv_headers_country_list($component, $export_options) {
  *   will be another column within the file. This function is called once for
  *   every row of data.
  */
-function _webform_csv_data_country_list($component, $export_options, $value) {
+function _webform_csv_data_country_list(array $component, array $export_options, array $value) {
   return isset($value[0]) ? $value[0] : '';
 }
-
