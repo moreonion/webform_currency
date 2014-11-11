@@ -132,12 +132,14 @@ function _webform_render_country_list($component, $value = NULL, $filter = TRUE)
     }
   }
   $element = array(
-    '#type'          => 'select',
-    '#title'         => $component['name'],
-    '#description'   => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
-    '#options'       => $available_countries,
-    '#default_value' => $default_ctry,
-    '#weight'        => isset($component['weight']) ? $component['weight'] : 0,
+    '#type'           => 'select',
+    '#title'          => $component['name'],
+    '#title_display'  => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
+    '#description'    => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
+    '#options'        => $available_countries,
+    '#default_value'  => $default_ctry,
+    '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
+    '#theme_wrappers' => array('webform_element'),
   );
 
   return $element;
