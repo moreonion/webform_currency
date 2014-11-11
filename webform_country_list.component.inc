@@ -32,7 +32,7 @@ function _webform_defaults_country_list() {
  * user (available countries) in that order in the DB. Only the ISO codes are
  * saved in the DB.
  *
- * @param array  $component
+ * @param array $component
  *   A Webform component array.
  *
  * @return array
