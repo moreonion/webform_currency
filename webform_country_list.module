@@ -7,9 +7,6 @@
 
 /**
  * Implements hook_webform_component_info().
- *
- * @return
- *   An array of components, keyed by machine name.
  */
 function webform_country_list_webform_component_info() {
   $components['country_list'] = array(
@@ -33,7 +30,8 @@ function webform_country_list_webform_component_info() {
  *   An associative array containing:
  *   - element: An associative array containing the properties of the element.
  *     Properties used: #format, #value.
- * @return
+ *
+ * @return string
  *   HTML output defining a table with a list of countries
  *
  * @see theme_webform_element
@@ -125,21 +123,22 @@ function theme_webform_display_country_list(array $variables) {
 /**
  * Implements hook_help().
  *
- * @param $path
+ * @param string $path
  *   The router menu path.
- * @param $arg
+ * @param array $arg
  *   An array that corresponds to the return value of the arg() function.
+ *
  * @return
  *   A localized string containing the help text.
  */
 function webform_country_list_help($path, $arg) {
   if ($path === 'admin/help#webform_country_list') {
     return '<h3>' . t('Configuration') . '</h3>' .
-t('When adding a Country List component to your webform you\'ll see
+    t("When adding a Country List component to your webform you'll see
 the component edit form.
 Here, in the list of all countries, select those you want to include
-in your selection list by checking the "available" box.
+in your selection list by checking the \"available\" box.
 You can also change the ordering of the available countries by
-dragging and dropping lines up or down.');
+dragging and dropping lines up or down.");
   }
 }
