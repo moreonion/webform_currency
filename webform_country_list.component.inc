@@ -182,7 +182,7 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     // We use the PHP PECL geoip package to look up the IP address of the
     // user in the geoip IP database in order to find a matching country.
     // We get back the ISO country code for the user.
-    $geoip_ctry_code = @geoip_country_code_by_name(ip_address());
+    $geoip_ctry_code = geoip_country_code_by_name(ip_address());
     if (isset($available_countries[$geoip_ctry_code])) {
       $default_ctry = $geoip_ctry_code;
     }
