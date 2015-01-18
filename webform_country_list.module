@@ -134,3 +134,20 @@ You can also change the ordering of the available countries by
 dragging and dropping lines up or down.");
   }
 }
+
+/**
+ * Implements hook_form_builder_types().
+ */
+function webform_country_list_form_builder_types() {
+  require_once dirname(__FILE__) . '/webform_country_list.component.inc';
+  $map = _form_builder_webform_property_map('country_list');
+  $fields['country_list'] = array(
+    'title'      => t('Country list'),
+    'properties' => array_keys($map['properties']),
+    'default'    =>  array(
+      '#form_builder' => array('element_type' => 'country_list'),
+    ) + _form_builder_webform_default('country_list'),
+  );
+
+  return array('webform' => $fields);
+}

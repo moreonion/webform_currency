@@ -44,10 +44,12 @@ function _webform_edit_country_list(array $component) {
   $delta            = 0;
   $nr_all_countries = count($all_countries);
   $form             = array(
-    'country_list' => array(
-      '#type'     => 'container',
-      '#attached' => array(
-        'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css'),
+    'extra' => array(
+      'country_list' => array(
+        '#type'     => 'container',
+        '#attached' => array(
+          'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css'),
+        ),
       ),
     ),
   );
@@ -63,7 +65,7 @@ function _webform_edit_country_list(array $component) {
   // then the rest.
   $all_countries = $avail_countries + $all_countries;
   foreach ($all_countries as $country_code => $country) {
-    $form_entry = &$form['country_list'][$delta];
+    $form_entry = &$form['extra']['country_list'][$delta];
     $form_entry = array(
       '#type' => 'container',
     );
@@ -96,8 +98,8 @@ function _webform_edit_country_list(array $component) {
     );
     $delta++;
   }
-  $form['country_list']['#theme'] = 'country_list_form';
-  $form['country_list']['#element_validate'] = array('_webform_country_list_edit_validate');
+  $form['extra']['country_list']['#theme'] = 'country_list_form';
+  $form['extra']['country_list']['#element_validate'] = array('_webform_country_list_edit_validate');
 
   return $form;
 }
@@ -135,9 +137,9 @@ function _webform_country_list_cmp_weights(array $a, array $b) {
 function _webform_country_list_edit_validate(array &$element, array &$form_state) {
   // Sort the array by the values of their weight so it reflects the ordering
   // the user chose in the UI.
-  usort($form_state['values']['country_list'], '_webform_country_list_cmp_weights');
+  usort($form_state['values']['extra']['country_list'], '_webform_country_list_cmp_weights');
   // Save those countries chosen by the user to save them later in the DB.
-  foreach ($form_state['values']['country_list'] as $value) {
+  foreach ($form_state['values']['extra']['country_list'] as $value) {
     if ($value['available'] !== 0) {
       $form_state['values']['extra']['available_countries'][$value['available']] = $value['available'];
     }
@@ -304,3 +306,63 @@ function _webform_csv_headers_country_list(array $component, array $export_optio
 function _webform_csv_data_country_list(array $component, array $export_options, array $value) {
   return isset($value[0]) ? $value[0] : '';
 }
+
+
+/**********************************************************************/
+/******************* FORM BUILDER INTEGRATION *************************/
+/**********************************************************************/
+
+
+/**
+ * Implements _webform_form_builder_map_[form_builder type]().
+ */
+function _webform_form_builder_map_country_list() {
+  $map['form_builder_type'] = 'country_list';
+  $map['properties']        = array(
+    'available_countries' => array(
+      'storage_parents' => array('extra', 'available_countries'),
+    ),
+  );
+  return $map;
+}
+
+/**
+ * Implements _webform_form_builder_properties_[component]().
+ *
+ * Component specific properties.
+ *
+ * @see form_builder_webform_form_builder_properties().
+ */
+function _webform_form_builder_properties_country_list() {
+  return array(
+    'available_countries' => array(
+      'form'   => 'webform_country_list_form_builder_property_country_list_form',
+      'submit' => array('webform_country_list_form_builder_property_country_list_form_submit'),
+    ),
+  );
+}
+
+/**
+ * Callback set in _webform_form_builder_properties_country_list().
+ */
+function webform_country_list_form_builder_property_country_list_form(&$form_state, $form_type, $element, $property) {
+  $form['extra'] = array(
+    '#form_builder' => array('property_group' => 'options'),
+    '#tree'         => TRUE,
+  );
+  if (isset($element['#available_countries'])) {
+    $element['#webform_component']['extra']['available_countries'] = $element['#available_countries'];
+  }
+  $edit = _webform_edit_country_list($element['#webform_component']);
+  $form['extra']['country_list'] = $edit['extra']['country_list'];
+
+  return $form;
+}
+
+/**
+ * Submit handler for webform_country_list_form_builder_property_country_list_form().
+ */
+function webform_country_list_form_builder_property_country_list_form_submit(&$form, &$form_state) {
+  $form_state['values']['available_countries'] = $form_state['values']['extra']['available_countries'];
+}
+

@@ -62,6 +62,7 @@ Hard dependencies:
 
 Soft dependencies:
    * geoip
+   * form_builder
 
 Indirect dependencies from webform 4:
    * ctools
