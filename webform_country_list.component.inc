@@ -13,10 +13,11 @@
  */
 function _webform_defaults_country_list() {
   $element = array(
-    'name'     => 'Country List',
-    'form_key' => NULL,
-    'value'    => '',
-    'extra'    => array(
+    'name'      => 'Country',
+    'form_key'  => NULL,
+    'mandatory' => 0,
+    'value'     => '',
+    'extra'     => array(
       'available_countries' => array(),
       'private'             => FALSE,
     ),
@@ -172,13 +173,13 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
   // Necessary for country_get_list()
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
-  $available_countries = array();
+  $available_countries = empty($component['mandatory']) ? array('no_selection' => t('<Select a country>')) : array();
 
   foreach ($component['extra']['available_countries'] as $country_code) {
     $available_countries[$country_code] = $all_countries[$country_code];
   }
-  if (empty($available_countries)) {
-    $available_countries = $all_countries;
+  if (count($available_countries) == 1 && isset($available_countries['no_selection'])) {
+    $available_countries += $all_countries;
   }
   reset($available_countries);
   $default_ctry = key($available_countries);
@@ -201,10 +202,31 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     '#options'        => $available_countries,
     '#default_value'  => $default_ctry,
     '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
+    '#required'       => $component['mandatory'],
     '#theme_wrappers' => array('webform_element'),
   );
 
   return $element;
+}
+
+/**
+ * Implements _webform_submit_[component]().
+ *
+ * @param array $component
+ *   A Webform component array.
+ * @param string $value
+ *   The ISO code for the selected country or 'no_selection' for non mandatory
+ *   fields where the user didn't choose a country
+ *
+ * @return array
+ *   either the unchanged ISO code or NULL if the user didn't select a country
+ */
+function _webform_submit_country_list(array $component, $value) {
+  if ($component['mandatory'] == 0 && $value == 'no_selection') {
+    $value = NULL;
+  }
+
+  return $value;
 }
 
 /**
