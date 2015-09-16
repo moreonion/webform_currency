@@ -136,9 +136,12 @@ dragging and dropping lines up or down.");
 }
 
 /**
- * Implements hook_form_builder_types().
+ * Implements hook_form_builder_element_types().
  */
-function webform_country_list_form_builder_types() {
+function webform_country_list_form_builder_element_types($form_type, $form_id) {
+  if ($form_type != 'webform') {
+    return;
+  }
   require_once dirname(__FILE__) . '/webform_country_list.component.inc';
   $map = _form_builder_webform_property_map('country_list');
   $fields['country_list'] = array(
@@ -149,5 +152,5 @@ function webform_country_list_form_builder_types() {
     ) + _form_builder_webform_default('country_list'),
   );
 
-  return array('webform' => $fields);
+  return $fields;
 }
