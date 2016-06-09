@@ -235,7 +235,7 @@ function _webform_submit_country_list(array $component, $value) {
  *
  * @param array $component
  *   A Webform component array.
- * @param array $value
+ * @param $value
  *   An array of information containing the submission result, directly
  *   correlating to the webform_submitted_data database table schema.
  * @param string $format
@@ -246,7 +246,7 @@ function _webform_submit_country_list(array $component, $value) {
  * @return array
  *   A renderable element
  */
-function _webform_display_country_list(array $component, array $value, $format = 'html') {
+function _webform_display_country_list(array $component, $value, $format = 'html') {
   return array(
     '#title'          => $component['name'],
     '#weight'         => $component['weight'],
@@ -282,14 +282,14 @@ function _webform_theme_country_list() {
  *
  * @param array $component
  *   A Webform component array.
- * @param array $value
+ * @param $value
  *   An array of information containing the submission result, directly
  *   correlating to the webform_submitted_data database schema.
  *
  * @return string
  *   Textual output formatted for human reading.
  */
-function _webform_table_country_list(array $component, array $value) {
+function _webform_table_country_list(array $component, $value) {
   return !empty($value[0]) ? check_plain($value[0]) : '';
 }
 
