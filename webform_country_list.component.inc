@@ -204,6 +204,7 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
     '#required'       => $component['mandatory'],
     '#theme_wrappers' => array('webform_element'),
+    '#translatable'   => array('title'),
   );
 
   return $element;
@@ -255,6 +256,7 @@ function _webform_display_country_list(array $component, array $value, $format =
     '#component'      => $component,
     '#format'         => $format,
     '#value'          => isset($value) ? $value[0] : '',
+    '#translatable'   => array('title'),
   );
 }
 
