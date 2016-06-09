@@ -246,7 +246,7 @@ function _webform_submit_country_list(array $component, $value) {
  * @return array
  *   A renderable element
  */
-function _webform_display_country_list(array $component, array $value, $format = 'html') {
+function _webform_display_country_list(array $component, $value, $format = 'html') {
   return array(
     '#title'          => $component['name'],
     '#weight'         => $component['weight'],
