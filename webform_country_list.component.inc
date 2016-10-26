@@ -67,7 +67,7 @@ function _webform_edit_country_list(array $component) {
   // then the rest.
   $all_countries = $avail_countries + $all_countries;
   foreach ($all_countries as $country_code => $country) {
-    $form_entry = &$form['extra']['available_countries'][$delta];
+    $form_entry = &$form['extra']['available_countries'][$country_code];
     $form_entry = array(
       '#type' => 'container',
     );
@@ -107,24 +107,6 @@ function _webform_edit_country_list(array $component) {
 }
 
 /**
- * Determines if parameter (weight) A is greater than B.
- *
- * Callback for usort() within _webform_country_list_edit_validate().
- *
- * @param array $a
- *   First country list entry to compare.
- * @param array $b
- *   Second country list entry to compare.
- *
- * @return int
- *   A value greater than 0 if $a is greater than $b, 0 if they're the same
- *   and a value smaller than 0 if $a is smaller than $b
- */
-function _webform_country_list_cmp_weights(array $a, array $b) {
-  return ($a['_weight'] - $b['_weight']);
-}
-
-/**
  * Implements callback_form_element_validate() for country_list elements.
  *
  * Ensures the countries are ordered in the form values array like the user did
@@ -138,17 +120,15 @@ function _webform_country_list_cmp_weights(array $a, array $b) {
  */
 function _webform_country_list_edit_validate(array &$element, array &$form_state) {
   $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
-  // Sort the array by the values of their weight so it reflects the ordering
-  // the user chose in the UI.
-  usort($values, '_webform_country_list_cmp_weights');
-  // Save those countries chosen by the user to save them later in the DB.
+  // Get only enabled countries and key them by their weight for later sorting.
   $filtered = array();
-  foreach ($values as $value) {
-    if ($value['available'] !== 0) {
-      $filtered[$value['available']] = $value['available'];
+  foreach ($values as $code => $value) {
+    if (!empty($value['available'])) {
+      $filtered[$value['_weight']] = $code;
     }
   }
-  $values = $filtered;
+  ksort($filtered);
+  $values = array_combine($filtered, $filtered);
 }
 
 /**
