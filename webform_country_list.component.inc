@@ -60,14 +60,11 @@ function _webform_edit_country_list(array $component) {
   // The order is the same as in the DB.
   $avail_countries = $component['extra']['available_countries'];
   // Only country ISO codes are stored in the DB, get the country names.
-  foreach ($avail_countries as $country_code) {
-    $avail_countries[$country_code] = &$all_countries[$country_code];
-    unset($all_countries[$country_code]);
-  }
+  $countries = array_intersect_key($all_countries, $avail_countries);
   // Prepare the complete country list: first the previously selected countries,
   // then the rest.
-  $all_countries = $avail_countries + $all_countries;
-  foreach ($all_countries as $country_code => $country) {
+  $countries += $all_countries;
+  foreach ($countries as $country_code => $country) {
     $form_entry = &$form['extra']['available_countries'][$country_code];
     $form_entry = array(
       '#type' => 'container',
