@@ -16,6 +16,7 @@ function _webform_defaults_country_list() {
     'name'      => 'Country',
     'form_key'  => NULL,
     'mandatory' => 0,
+    'required'  => 0,
     'value'     => '',
     'extra'     => array(
       'available_countries' => array(),
@@ -153,7 +154,8 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
   // Necessary for country_get_list()
   include_once DRUPAL_ROOT . '/includes/locale.inc';
   $all_countries       = country_get_list();
-  $available_countries = empty($component['mandatory']) ? array('no_selection' => t('<Select a country>')) : array();
+  $required = !empty($component['required']) || !empty($component['mandatory']);
+  $available_countries = !$required ? array('no_selection' => t('<Select a country>')) : array();
 
   foreach ($component['extra']['available_countries'] as $country_code) {
     $available_countries[$country_code] = $all_countries[$country_code];
@@ -182,7 +184,7 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     '#options'        => $available_countries,
     '#default_value'  => empty($value) ? $default_ctry : $value,
     '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
-    '#required'       => $component['mandatory'],
+    '#required'       => $required,
     '#theme_wrappers' => array('webform_element'),
     '#translatable'   => array('title'),
   );
@@ -203,7 +205,8 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
  *   either the unchanged ISO code or NULL if the user didn't select a country
  */
 function _webform_submit_country_list(array $component, $value) {
-  if ($component['mandatory'] == 0 && $value == 'no_selection') {
+  $required = !empty($component['required']) || !empty($component['mandatory']);
+  if (!$required && $value == 'no_selection') {
     $value = NULL;
   }
 
