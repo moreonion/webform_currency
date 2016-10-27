@@ -25,7 +25,7 @@ function _webform_defaults_country_list() {
     'required'  => 0,
     'value'     => '',
     'extra'     => array(
-      'available_countries' => array(),
+      'options_enabled' => array(),
       'private' => FALSE,
       'optrand' => FALSE,
       'empty_option' => '',
@@ -58,7 +58,7 @@ function _webform_edit_country_list(array $component) {
   $form['display']['aslist']['#access'] = FALSE;
   unset($form['items']);
 
-  $form['extra']['available_countries'] = array(
+  $form['extra']['options_enabled'] = array(
     '#tree' => TRUE,
     '#type' => 'container',
     '#attached' => array(
@@ -68,7 +68,7 @@ function _webform_edit_country_list(array $component) {
   // Get the list of countries previously stored for this component.
   // The order is the same as in the DB.
   $all_countries = country_get_list();
-  $avail_countries = $component['extra']['available_countries'];
+  $avail_countries = $component['extra']['options_enabled'];
   // Only country ISO codes are stored in the DB, get the country names.
   $countries = array_intersect_key($all_countries, $avail_countries);
   // Prepare the complete country list: first the previously selected countries,
@@ -77,7 +77,7 @@ function _webform_edit_country_list(array $component) {
   $total = count($countries);
   $delta = 0;
   foreach ($countries as $country_code => $country) {
-    $form_entry = &$form['extra']['available_countries'][$country_code];
+    $form_entry = &$form['extra']['options_enabled'][$country_code];
     $form_entry = array(
       '#type' => 'container',
     );
@@ -110,8 +110,8 @@ function _webform_edit_country_list(array $component) {
     );
     $delta++;
   }
-  $form['extra']['available_countries']['#theme'] = 'country_list_form';
-  $form['extra']['available_countries']['#element_validate'] = array('_webform_country_list_edit_validate');
+  $form['extra']['options_enabled']['#theme'] = 'country_list_form';
+  $form['extra']['options_enabled']['#element_validate'] = array('_webform_country_list_edit_validate');
 
   return $form;
 }
@@ -165,14 +165,14 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
   $component['extra']['other_option'] = NULL;
   $component['extra']['options_source'] = NULL;
   $options = country_get_list();
-  if ($component['extra']['available_countries']) {
-    $options = array_intersect_key($options, $component['extra']['available_countries']);
+  if ($component['extra']['options_enabled']) {
+    $options = array_intersect_key($options, $component['extra']['options_enabled']);
   }
   // Yes, encoding the options and then parsing them again is not ideal, but
   // maintainability beats performance here.
   $component['extra']['items'] = _webform_select_options_to_text($options);
 
-  $default_ctry = key($options);
+  $default = key($options);
   // If the PHP PECL geoip package is available set the default country to that
   // matching the geoip country.
   if (function_exists('geoip_country_code_by_name')) {
@@ -181,11 +181,11 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     // We get back the ISO country code for the user.
     $geoip_ctry_code = geoip_country_code_by_name(ip_address());
     if (isset($options[$geoip_ctry_code])) {
-      $default_ctry = $geoip_ctry_code;
+      $default = $geoip_ctry_code;
     }
   }
 
-  return _webform_render_select($component, $default_ctry, $filter);
+  return _webform_render_select($component, $default, $filter);
 }
 
 /**
@@ -316,8 +316,8 @@ function _webform_csv_data_country_list(array $component, array $export_options,
 function _webform_form_builder_map_country_list() {
   $map['form_builder_type'] = 'country_list';
   $map['properties']        = array(
-    'available_countries' => array(
-      'storage_parents' => array('extra', 'available_countries'),
+    'options_enabled' => array(
+      'storage_parents' => array('extra', 'options_enabled'),
     ),
   );
   return $map;
@@ -332,7 +332,7 @@ function _webform_form_builder_map_country_list() {
  */
 function _webform_form_builder_properties_country_list() {
   return array(
-    'available_countries' => array(
+    'options_enabled' => array(
       'form'   => 'webform_country_list_form_builder_property_country_list_form',
     ),
   );
@@ -343,7 +343,7 @@ function _webform_form_builder_properties_country_list() {
  */
 function webform_country_list_form_builder_property_country_list_form(&$form_state, $form_type, $element, $property) {
   $edit = _webform_edit_country_list($element['#webform_component']);
-  $form['available_countries'] = $edit['extra']['available_countries'] + array(
+  $form['options_enabled'] = $edit['extra']['options_enabled'] + array(
     '#form_builder' => array('property_group' => 'options'),
   );
 
