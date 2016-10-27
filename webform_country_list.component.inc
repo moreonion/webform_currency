@@ -5,6 +5,12 @@
  * Implementation of the webform component using the webform API.
  */
 
+// Necessary for country_get_list()
+include_once DRUPAL_ROOT . '/includes/locale.inc';
+
+// Some functionality is leveraged from the generic select component.
+require_once drupal_get_path('module', 'webform') . '/components/select.inc';
+
 /**
  * Implements _webform_defaults_[component]().
  *
@@ -20,7 +26,9 @@ function _webform_defaults_country_list() {
     'value'     => '',
     'extra'     => array(
       'available_countries' => array(),
-      'private'             => FALSE,
+      'private' => FALSE,
+      'optrand' => FALSE,
+      'empty_option' => '',
     ),
   );
 
@@ -41,29 +49,33 @@ function _webform_defaults_country_list() {
  *   An array of form items to be displayed on the edit component page.
  */
 function _webform_edit_country_list(array $component) {
-  include_once DRUPAL_ROOT . '/includes/locale.inc';
-  $all_countries    = country_get_list();
-  $delta            = 0;
-  $nr_all_countries = count($all_countries);
-  $form             = array(
-    'extra' => array(
-      'available_countries' => array(
-        '#tree' => TRUE,
-        '#type'     => 'container',
-        '#attached' => array(
-          'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css'),
-        ),
-      ),
+  $component['extra']['items'] = '';
+  $component['extra']['aslist'] = TRUE;
+  $component['extra']['multiple'] = FALSE;
+  $component['extra']['options_source'] = NULL;
+  $component['extra']['custom_keys'] = FALSE;
+  $form = _webform_edit_select($component);
+  $form['display']['aslist']['#access'] = FALSE;
+  unset($form['items']);
+
+  $form['extra']['available_countries'] = array(
+    '#tree' => TRUE,
+    '#type' => 'container',
+    '#attached' => array(
+      'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css'),
     ),
   );
   // Get the list of countries previously stored for this component.
   // The order is the same as in the DB.
+  $all_countries = country_get_list();
   $avail_countries = $component['extra']['available_countries'];
   // Only country ISO codes are stored in the DB, get the country names.
   $countries = array_intersect_key($all_countries, $avail_countries);
   // Prepare the complete country list: first the previously selected countries,
   // then the rest.
   $countries += $all_countries;
+  $total = count($countries);
+  $delta = 0;
   foreach ($countries as $country_code => $country) {
     $form_entry = &$form['extra']['available_countries'][$country_code];
     $form_entry = array(
@@ -92,7 +104,7 @@ function _webform_edit_country_list(array $component) {
       '#type'          => 'weight',
       '#title'         => t('Weight for row @number', array('@number' => $delta + 1)),
       '#title_display' => 'invisible',
-      '#delta'         => $nr_all_countries,
+      '#delta'         => $total,
       '#default_value' => $delta,
       '#weight'        => 100,
     );
@@ -148,20 +160,19 @@ function _webform_country_list_edit_validate(array &$element, array &$form_state
  *   A renderable array
  */
 function _webform_render_country_list(array $component, array $value = NULL, $filter = TRUE) {
-  // Necessary for country_get_list()
-  include_once DRUPAL_ROOT . '/includes/locale.inc';
-  $all_countries       = country_get_list();
-  $required = !empty($component['required']) || !empty($component['mandatory']);
-  $available_countries = !$required ? array('no_selection' => t('<Select a country>')) : array();
+  $component['extra']['as_list'] = TRUE;
+  $component['extra']['multiple'] = FALSE;
+  $component['extra']['other_option'] = NULL;
+  $component['extra']['options_source'] = NULL;
+  $options = country_get_list();
+  if ($component['extra']['available_countries']) {
+    $options = array_intersect_key($options, $component['extra']['available_countries']);
+  }
+  // Yes, encoding the options and then parsing them again is not ideal, but
+  // maintainability beats performance here.
+  $component['extra']['items'] = _webform_select_options_to_text($options);
 
-  foreach ($component['extra']['available_countries'] as $country_code) {
-    $available_countries[$country_code] = $all_countries[$country_code];
-  }
-  if (count($available_countries) == 1 && isset($available_countries['no_selection'])) {
-    $available_countries += $all_countries;
-  }
-  reset($available_countries);
-  $default_ctry = key($available_countries);
+  $default_ctry = key($options);
   // If the PHP PECL geoip package is available set the default country to that
   // matching the geoip country.
   if (function_exists('geoip_country_code_by_name')) {
@@ -169,24 +180,12 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
     // user in the geoip IP database in order to find a matching country.
     // We get back the ISO country code for the user.
     $geoip_ctry_code = geoip_country_code_by_name(ip_address());
-    if (isset($available_countries[$geoip_ctry_code])) {
+    if (isset($options[$geoip_ctry_code])) {
       $default_ctry = $geoip_ctry_code;
     }
   }
-  $element = array(
-    '#type'           => 'select',
-    '#title'          => $component['name'],
-    '#title_display'  => isset($component['extra']['title_display']) ? $component['extra']['title_display'] : 'before',
-    '#description'    => isset($component['extra']['description']) ? check_plain($component['extra']['description']) : NULL,
-    '#options'        => $available_countries,
-    '#default_value'  => empty($value) ? $default_ctry : $value,
-    '#weight'         => isset($component['weight']) ? $component['weight'] : 0,
-    '#required'       => $required,
-    '#theme_wrappers' => array('webform_element'),
-    '#translatable'   => array('title'),
-  );
 
-  return $element;
+  return _webform_render_select($component, $default_ctry, $filter);
 }
 
 /**
@@ -195,19 +194,14 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
  * @param array $component
  *   A Webform component array.
  * @param string $value
- *   The ISO code for the selected country or 'no_selection' for non mandatory
- *   fields where the user didn't choose a country
+ *   The ISO code for the selected country or '' for non mandatory fields where
+ *   the user didn't choose a country
  *
  * @return array
  *   either the unchanged ISO code or NULL if the user didn't select a country
  */
 function _webform_submit_country_list(array $component, $value) {
-  $required = !empty($component['required']) || !empty($component['mandatory']);
-  if (!$required && $value == 'no_selection') {
-    $value = NULL;
-  }
-
-  return $value;
+  return empty($value) ? [] : [$value];
 }
 
 /**
@@ -286,13 +280,8 @@ function _webform_table_country_list(array $component, $value) {
  *   including either prefixed or trailing commas.
  */
 function _webform_csv_headers_country_list(array $component, array $export_options) {
-  $header = array();
-
-  $header[0] = array('');
-  $header[1] = array('');
-  $header[2] = $component['name'];
-
-  return $header;
+  $component['extra']['multiple'] = FALSE;
+  return _webform_csv_headers_select($component, $export_options);
 }
 
 /**
