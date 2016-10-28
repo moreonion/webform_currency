@@ -28,7 +28,7 @@ function _webform_defaults_currency() {
       'options_enabled' => array(),
       'private' => FALSE,
       'optrand' => FALSE,
-      'empty_option' => '',
+      'empty_option' => NULL,
     ),
   );
 
@@ -67,34 +67,34 @@ function _webform_edit_currency(array $component) {
   );
   // Get the list of currencies previously stored for this component.
   // The order is the same as in the DB.
-  $all_currencies = currency_get_list();
-  $avail_currencies = $component['extra']['options_enabled'];
+  $all_options = webform_currency_options();
+  $enabled_options = $component['extra']['options_enabled'];
   // Only currency ISO codes are stored in the DB, get the currency names.
-  $currencies = array_intersect_key($all_currencies, $avail_currencies);
+  $options = array_intersect_key($all_options, $enabled_options);
   // Prepare the complete currency list: first the previously selected currencies,
   // then the rest.
-  $currencies += $all_currencies;
-  $total = count($currencies);
+  $options += $all_options;
+  $total = count($options);
   $delta = 0;
-  foreach ($currencies as $currency_code => $currency) {
-    $form_entry = &$form['extra']['options_enabled'][$currency_code];
+  foreach ($options as $key => $label) {
+    $form_entry = &$form['extra']['options_enabled'][$key];
     $form_entry = array(
       '#type' => 'container',
     );
     $form_entry['available'] = array(
       '#type'          => 'checkbox',
-      '#return_value'  => $currency_code,
-      '#default_value' => isset($avail_currencies[$currency_code]) ? $currency_code : NULL,
-      '#attributes'    => array('class' => array('currency-list-available')),
+      '#return_value'  => $key,
+      '#default_value' => isset($enabled_options[$key]) ? $key : NULL,
+      '#attributes'    => array('class' => array('option-available')),
     );
     $form_entry['currency_code'] = array(
-      '#markup' => $currency_code,
-      '#prefix' => '<span class="currency-list-code">',
+      '#markup' => $key,
+      '#prefix' => '<span class="option-key">',
       '#suffix' => '</span>',
     );
     $form_entry['label'] = array(
-      '#markup' => $currency,
-      '#prefix' => '<span class="currency-list-currency">',
+      '#markup' => $label,
+      '#prefix' => '<span class="option-label">',
       '#suffix' => '</span>',
     );
 
@@ -164,28 +164,14 @@ function _webform_render_currency(array $component, array $value = NULL, $filter
   $component['extra']['multiple'] = FALSE;
   $component['extra']['other_option'] = NULL;
   $component['extra']['options_source'] = NULL;
-  $options = currency_get_list();
-  if ($component['extra']['options_enabled']) {
-    $options = array_intersect_key($options, $component['extra']['options_enabled']);
-  }
+
   // Yes, encoding the options and then parsing them again is not ideal, but
   // maintainability beats performance here.
+  $options = webform_currency_options();
+  $options = array_intersect_key($options, $component['extra']['options_enabled']);
   $component['extra']['items'] = _webform_select_options_to_text($options);
-
-  $default = key($options);
-  // If the PHP PECL geoip package is available set the default currency to that
-  // matching the geoip currency.
-  if (function_exists('geoip_currency_code_by_name')) {
-    // We use the PHP PECL geoip package to look up the IP address of the
-    // user in the geoip IP database in order to find a matching currency.
-    // We get back the ISO currency code for the user.
-    $geoip_ctry_code = geoip_currency_code_by_name(ip_address());
-    if (isset($options[$geoip_ctry_code])) {
-      $default = $geoip_ctry_code;
-    }
-  }
-
-  return _webform_render_select($component, $default, $filter);
+  $value = $value ? $value : key($options);
+  return _webform_render_select($component, $value, $filter);
 }
 
 /**

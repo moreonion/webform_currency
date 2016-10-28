@@ -43,6 +43,7 @@ DEPENDENCIES
 
 Hard dependencies:
    * webform (version 4)
+   * currency
 
 Soft dependencies:
    * form_builder

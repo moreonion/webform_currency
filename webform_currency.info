@@ -3,4 +3,5 @@ description = Webform component to select ISO currency codes from a customizable
 core = "7.x"
 package = Webform
 
-dependencies[] = webform
+dependencies[] = currency
+dependencies[] = webformi

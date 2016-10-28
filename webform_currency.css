@@ -1,35 +1,35 @@
-.currency-list-table-header {
+.option-list-table-header {
   padding: 4px 9px;
 }
 
-.currency-list-label-available {
+.option-list-label-available {
   float: left;
   margin-left: 2%;
   width: 15%;
 }
 
-.currency-list-label-code {
+.option-list-label-key {
   float: left;
   width: 20%;
 }
 
-.currency-list-label-currency {
+.option-list-label-label {
   float: left;
   width: 20%;
   margin-left: 20%;
 }
 
-.currency-list-available {
+.option-available {
   float: left;
   width: 17%;
 }
 
-.currency-list-code {
+.option-key {
   float: left;
   width: 20%;
 }
 
-.currency-list-currency {
+.option-label {
   margin-left: 20%;
   width: 40%;
 }
