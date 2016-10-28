@@ -5,7 +5,7 @@
  * Implementation of the webform component using the webform API.
  */
 
-// Necessary for country_get_list()
+// Necessary for currency_get_list()
 include_once DRUPAL_ROOT . '/includes/locale.inc';
 
 // Some functionality is leveraged from the generic select component.
@@ -17,9 +17,9 @@ require_once drupal_get_path('module', 'webform') . '/components/select.inc';
  * @return array
  *   An webform component array initialized with default values.
  */
-function _webform_defaults_country_list() {
+function _webform_defaults_currency() {
   $element = array(
-    'name'      => 'Country',
+    'name'      => 'Currency',
     'form_key'  => NULL,
     'mandatory' => 0,
     'required'  => 0,
@@ -38,8 +38,8 @@ function _webform_defaults_country_list() {
 /**
  * Implements _webform_edit_[component]().
  *
- * Every country_list components stores the list of countries selected by the
- * user (available countries) in that order in the DB. Only the ISO codes are
+ * Every currency components stores the list of currencies selected by the
+ * user (available currencies) in that order in the DB. Only the ISO codes are
  * saved in the DB.
  *
  * @param array $component
@@ -48,7 +48,7 @@ function _webform_defaults_country_list() {
  * @return array
  *   An array of form items to be displayed on the edit component page.
  */
-function _webform_edit_country_list(array $component) {
+function _webform_edit_currency(array $component) {
   $component['extra']['items'] = '';
   $component['extra']['aslist'] = TRUE;
   $component['extra']['multiple'] = FALSE;
@@ -62,39 +62,39 @@ function _webform_edit_country_list(array $component) {
     '#tree' => TRUE,
     '#type' => 'container',
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'webform_country_list') . '/webform_country_list.css'),
+      'css' => array(drupal_get_path('module', 'webform_currency') . '/webform_currency.css'),
     ),
   );
-  // Get the list of countries previously stored for this component.
+  // Get the list of currencies previously stored for this component.
   // The order is the same as in the DB.
-  $all_countries = country_get_list();
-  $avail_countries = $component['extra']['options_enabled'];
-  // Only country ISO codes are stored in the DB, get the country names.
-  $countries = array_intersect_key($all_countries, $avail_countries);
-  // Prepare the complete country list: first the previously selected countries,
+  $all_currencies = currency_get_list();
+  $avail_currencies = $component['extra']['options_enabled'];
+  // Only currency ISO codes are stored in the DB, get the currency names.
+  $currencies = array_intersect_key($all_currencies, $avail_currencies);
+  // Prepare the complete currency list: first the previously selected currencies,
   // then the rest.
-  $countries += $all_countries;
-  $total = count($countries);
+  $currencies += $all_currencies;
+  $total = count($currencies);
   $delta = 0;
-  foreach ($countries as $country_code => $country) {
-    $form_entry = &$form['extra']['options_enabled'][$country_code];
+  foreach ($currencies as $currency_code => $currency) {
+    $form_entry = &$form['extra']['options_enabled'][$currency_code];
     $form_entry = array(
       '#type' => 'container',
     );
     $form_entry['available'] = array(
       '#type'          => 'checkbox',
-      '#return_value'  => $country_code,
-      '#default_value' => isset($avail_countries[$country_code]) ? $country_code : NULL,
-      '#attributes'    => array('class' => array('country-list-available')),
+      '#return_value'  => $currency_code,
+      '#default_value' => isset($avail_currencies[$currency_code]) ? $currency_code : NULL,
+      '#attributes'    => array('class' => array('currency-list-available')),
     );
-    $form_entry['country_code'] = array(
-      '#markup' => $country_code,
-      '#prefix' => '<span class="country-list-code">',
+    $form_entry['currency_code'] = array(
+      '#markup' => $currency_code,
+      '#prefix' => '<span class="currency-list-code">',
       '#suffix' => '</span>',
     );
     $form_entry['label'] = array(
-      '#markup' => $country,
-      '#prefix' => '<span class="country-list-country">',
+      '#markup' => $currency,
+      '#prefix' => '<span class="currency-list-currency">',
       '#suffix' => '</span>',
     );
 
@@ -110,17 +110,17 @@ function _webform_edit_country_list(array $component) {
     );
     $delta++;
   }
-  $form['extra']['options_enabled']['#theme'] = 'country_list_form';
-  $form['extra']['options_enabled']['#element_validate'] = array('_webform_country_list_edit_validate');
+  $form['extra']['options_enabled']['#theme'] = 'currency_form';
+  $form['extra']['options_enabled']['#element_validate'] = array('_webform_currency_edit_validate');
 
   return $form;
 }
 
 /**
- * Implements callback_form_element_validate() for country_list elements.
+ * Implements callback_form_element_validate() for currency elements.
  *
- * Ensures the countries are ordered in the form values array like the user did
- * in the UI. Selects those countries that where enabled by the user to be saved
+ * Ensures the currencies are ordered in the form values array like the user did
+ * in the UI. Selects those currencies that where enabled by the user to be saved
  * for this component in the DB.
  *
  * @param array $element
@@ -128,9 +128,9 @@ function _webform_edit_country_list(array $component) {
  * @param array $form_state
  *   An form API array of the state of the form.
  */
-function _webform_country_list_edit_validate(array &$element, array &$form_state) {
+function _webform_currency_edit_validate(array &$element, array &$form_state) {
   $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
-  // Get only enabled countries and key them by their weight for later sorting.
+  // Get only enabled currencies and key them by their weight for later sorting.
   $filtered = array();
   foreach ($values as $code => $value) {
     if (!empty($value['available'])) {
@@ -159,12 +159,12 @@ function _webform_country_list_edit_validate(array &$element, array &$form_state
  * @return array
  *   A renderable array
  */
-function _webform_render_country_list(array $component, array $value = NULL, $filter = TRUE) {
+function _webform_render_currency(array $component, array $value = NULL, $filter = TRUE) {
   $component['extra']['as_list'] = TRUE;
   $component['extra']['multiple'] = FALSE;
   $component['extra']['other_option'] = NULL;
   $component['extra']['options_source'] = NULL;
-  $options = country_get_list();
+  $options = currency_get_list();
   if ($component['extra']['options_enabled']) {
     $options = array_intersect_key($options, $component['extra']['options_enabled']);
   }
@@ -173,13 +173,13 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
   $component['extra']['items'] = _webform_select_options_to_text($options);
 
   $default = key($options);
-  // If the PHP PECL geoip package is available set the default country to that
-  // matching the geoip country.
-  if (function_exists('geoip_country_code_by_name')) {
+  // If the PHP PECL geoip package is available set the default currency to that
+  // matching the geoip currency.
+  if (function_exists('geoip_currency_code_by_name')) {
     // We use the PHP PECL geoip package to look up the IP address of the
-    // user in the geoip IP database in order to find a matching country.
-    // We get back the ISO country code for the user.
-    $geoip_ctry_code = geoip_country_code_by_name(ip_address());
+    // user in the geoip IP database in order to find a matching currency.
+    // We get back the ISO currency code for the user.
+    $geoip_ctry_code = geoip_currency_code_by_name(ip_address());
     if (isset($options[$geoip_ctry_code])) {
       $default = $geoip_ctry_code;
     }
@@ -194,13 +194,13 @@ function _webform_render_country_list(array $component, array $value = NULL, $fi
  * @param array $component
  *   A Webform component array.
  * @param string $value
- *   The ISO code for the selected country or '' for non mandatory fields where
- *   the user didn't choose a country
+ *   The ISO code for the selected currency or '' for non mandatory fields where
+ *   the user didn't choose a currency
  *
  * @return array
- *   either the unchanged ISO code or NULL if the user didn't select a country
+ *   either the unchanged ISO code or NULL if the user didn't select a currency
  */
-function _webform_submit_country_list(array $component, $value) {
+function _webform_submit_currency(array $component, $value) {
   return empty($value) ? [] : [$value];
 }
 
@@ -220,11 +220,11 @@ function _webform_submit_country_list(array $component, $value) {
  * @return array
  *   A renderable element
  */
-function _webform_display_country_list(array $component, $value, $format = 'html') {
+function _webform_display_currency(array $component, $value, $format = 'html') {
   return array(
     '#title'          => $component['name'],
     '#weight'         => $component['weight'],
-    '#theme'          => 'webform_display_country_list',
+    '#theme'          => 'webform_display_currency',
     '#theme_wrappers' => $format == 'html' ? array('webform_element') : array('webform_element_text'),
     '#post_render'    => array('webform_element_wrapper'),
     '#component'      => $component,
@@ -240,12 +240,12 @@ function _webform_display_country_list(array $component, $value, $format = 'html
  * @return array
  *   An associative array of theme hook information.
  */
-function _webform_theme_country_list() {
+function _webform_theme_currency() {
   return array(
-    'country_list_form' => array(
+    'currency_form' => array(
       'render element' => 'element',
     ),
-    'webform_display_country_list' => array(
+    'webform_display_currency' => array(
       'render element' => 'element',
     ),
   );
@@ -263,7 +263,7 @@ function _webform_theme_country_list() {
  * @return string
  *   Textual output formatted for human reading.
  */
-function _webform_table_country_list(array $component, $value) {
+function _webform_table_currency(array $component, $value) {
   return !empty($value[0]) ? check_plain($value[0]) : '';
 }
 
@@ -279,7 +279,7 @@ function _webform_table_country_list(array $component, $value) {
  *   An array of data to be displayed in the first three rows of a CSV file, not
  *   including either prefixed or trailing commas.
  */
-function _webform_csv_headers_country_list(array $component, array $export_options) {
+function _webform_csv_headers_currency(array $component, array $export_options) {
   $component['extra']['multiple'] = FALSE;
   return _webform_csv_headers_select($component, $export_options);
 }
@@ -300,7 +300,7 @@ function _webform_csv_headers_country_list(array $component, array $export_optio
  *   will be another column within the file. This function is called once for
  *   every row of data.
  */
-function _webform_csv_data_country_list(array $component, array $export_options, array $value) {
+function _webform_csv_data_currency(array $component, array $export_options, array $value) {
   return isset($value[0]) ? $value[0] : '';
 }
 
@@ -313,8 +313,8 @@ function _webform_csv_data_country_list(array $component, array $export_options,
 /**
  * Implements _webform_form_builder_map_[form_builder type]().
  */
-function _webform_form_builder_map_country_list() {
-  $map['form_builder_type'] = 'country_list';
+function _webform_form_builder_map_currency() {
+  $map['form_builder_type'] = 'currency';
   $map['properties']        = array(
     'options_enabled' => array(
       'storage_parents' => array('extra', 'options_enabled'),
@@ -330,19 +330,19 @@ function _webform_form_builder_map_country_list() {
  *
  * @see form_builder_webform_form_builder_properties().
  */
-function _webform_form_builder_properties_country_list() {
+function _webform_form_builder_properties_currency() {
   return array(
     'options_enabled' => array(
-      'form'   => 'webform_country_list_form_builder_property_country_list_form',
+      'form'   => 'webform_currency_form_builder_property_currency_form',
     ),
   );
 }
 
 /**
- * Callback set in _webform_form_builder_properties_country_list().
+ * Callback set in _webform_form_builder_properties_currency().
  */
-function webform_country_list_form_builder_property_country_list_form(&$form_state, $form_type, $element, $property) {
-  $edit = _webform_edit_country_list($element['#webform_component']);
+function webform_currency_form_builder_property_currency_form(&$form_state, $form_type, $element, $property) {
+  $edit = _webform_edit_currency($element['#webform_component']);
   $form['options_enabled'] = $edit['extra']['options_enabled'] + array(
     '#form_builder' => array('property_group' => 'options'),
   );

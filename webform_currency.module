@@ -8,21 +8,21 @@
 /**
  * Implements hook_webform_component_info().
  */
-function webform_country_list_webform_component_info() {
-  $components['country_list'] = array(
-    'label'       => t('Country List'),
-    'description' => t('Provides a selectable list of countries for a webform.'),
+function webform_currency_webform_component_info() {
+  $components['currency'] = array(
+    'label'       => t('Currency'),
+    'description' => t('Provides a selectable list of currencies for a webform.'),
     'features'    => array(
       'default_value' => FALSE,
     ),
-    'file' => 'webform_country_list.component.inc',
+    'file' => 'webform_currency.component.inc',
   );
 
   return $components;
 }
 
 /**
- * Creates output for a table with header and rows containing all countries.
+ * Creates output for a table with header and rows containing all currencies.
  *
  * Code partially copied from field_multiple_value_form.
  *
@@ -32,28 +32,28 @@ function webform_country_list_webform_component_info() {
  *     Properties used: #format, #value.
  *
  * @return string
- *   HTML output defining a table with a list of countries
+ *   HTML output defining a table with a list of currencies
  *
  * @see theme_webform_element
  *
  * @ingroup themeable
  */
-function theme_country_list_form(array $variables) {
+function theme_currency_form(array $variables) {
   $element  = $variables['element'];
   $output   = '';
-  $table_id = drupal_html_id('country_list_values');
+  $table_id = drupal_html_id('currency_values');
 
-  $order_class = 'country-list-delta-order';
+  $order_class = 'currency-list-delta-order';
 
   $header = array(
     '',
     array(
-      'data' => '<div class="country-list-table-header">' .
-        '<label class="country-list-label-available">' . t('Available') .
+      'data' => '<div class="currency-list-table-header">' .
+        '<label class="currency-list-label-available">' . t('Available') .
         '</label>' .
-        '<label class="country-list-label-code">' . t('Country Code') .
+        '<label class="currency-list-label-code">' . t('Currency Code') .
         '</label>' .
-        '<label class="country-list-label-country">' . t('Country') .
+        '<label class="currency-list-label-currency">' . t('Currency') .
         '</label></div>',
       'class' => array('field-label'),
     ),
@@ -102,7 +102,7 @@ function theme_country_list_form(array $variables) {
 }
 
 /**
- * Returns HTML for displaying the selected country (code).
+ * Returns HTML for displaying the selected currency (code).
  *
  * @param array $variables
  *   An associative array containing:
@@ -113,7 +113,7 @@ function theme_country_list_form(array $variables) {
  *
  * @ingroup themeable
  */
-function theme_webform_display_country_list(array $variables) {
+function theme_webform_display_currency(array $variables) {
   $element = $variables['element'];
   $value = $element['#format'] == 'html' ? check_plain($element['#value']) : $element['#value'];
 
@@ -123,14 +123,14 @@ function theme_webform_display_country_list(array $variables) {
 /**
  * Implements hook_help().
  */
-function webform_country_list_help($path, array $arg) {
-  if ($path === 'admin/help#webform_country_list') {
+function webform_currency_help($path, array $arg) {
+  if ($path === 'admin/help#webform_currency') {
     return '<h3>' . t('Configuration') . '</h3>' .
-    t("When adding a Country List component to your webform you'll see
+    t("When adding a Currency component to your webform you'll see
 the component edit form.
-Here, in the list of all countries, select those you want to include
+Here, in the list of all currencies, select those you want to include
 in your selection list by checking the \"available\" box.
-You can also change the ordering of the available countries by
+You can also change the ordering of the available currencies by
 dragging and dropping lines up or down.");
   }
 }
@@ -138,18 +138,18 @@ dragging and dropping lines up or down.");
 /**
  * Implements hook_form_builder_element_types().
  */
-function webform_country_list_form_builder_element_types($form_type, $form_id) {
+function webform_currency_form_builder_element_types($form_type, $form_id) {
   if ($form_type != 'webform') {
     return;
   }
-  require_once dirname(__FILE__) . '/webform_country_list.component.inc';
-  $map = _form_builder_webform_property_map('country_list');
-  $fields['country_list'] = array(
-    'title'      => t('Country'),
+  require_once dirname(__FILE__) . '/webform_currency.component.inc';
+  $map = _form_builder_webform_property_map('currency');
+  $fields['currency'] = array(
+    'title'      => t('Currency'),
     'properties' => array_keys($map['properties']),
     'default'    =>  array(
-      '#form_builder' => array('element_type' => 'country_list'),
-    ) + _form_builder_webform_default('country_list'),
+      '#form_builder' => array('element_type' => 'currency'),
+    ) + _form_builder_webform_default('currency'),
   );
 
   return $fields;
