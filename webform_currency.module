@@ -149,6 +149,7 @@ function webform_currency_form_builder_element_types($form_type, $form_id) {
     'properties' => array_keys($map['properties']),
     'default'    =>  array(
       '#form_builder' => array('element_type' => 'currency'),
+      '#key' => 'currency',
     ) + _form_builder_webform_default('currency'),
   );
 
@@ -170,7 +171,7 @@ function webform_currency_options() {
       '@currency_code' => $currency->ISO4217Code,
     ));
   }
-  natcasesort($options);
+  ksort($options);
 
   return $options;
 }

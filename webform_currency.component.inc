@@ -18,18 +18,20 @@ require_once drupal_get_path('module', 'webform') . '/components/select.inc';
  *   An webform component array initialized with default values.
  */
 function _webform_defaults_currency() {
+  $select = _webform_defaults_select();
   $element = array(
     'name'      => 'Currency',
     'form_key'  => NULL,
     'mandatory' => 0,
     'required'  => 0,
     'value'     => '',
+    'weight' => 0,
     'extra'     => array(
       'options_enabled' => array(),
       'private' => FALSE,
       'optrand' => FALSE,
       'empty_option' => NULL,
-    ),
+    ) + $select['extra'],
   );
 
   return $element;
@@ -160,7 +162,7 @@ function _webform_currency_edit_validate(array &$element, array &$form_state) {
  *   A renderable array
  */
 function _webform_render_currency(array $component, array $value = NULL, $filter = TRUE) {
-  $component['extra']['as_list'] = TRUE;
+  $component['extra']['aslist'] = TRUE;
   $component['extra']['multiple'] = FALSE;
   $component['extra']['other_option'] = NULL;
   $component['extra']['options_source'] = NULL;
@@ -168,7 +170,9 @@ function _webform_render_currency(array $component, array $value = NULL, $filter
   // Yes, encoding the options and then parsing them again is not ideal, but
   // maintainability beats performance here.
   $options = webform_currency_options();
-  $options = array_intersect_key($options, $component['extra']['options_enabled']);
+  if ($component['extra']['options_enabled']) {
+    $options = array_intersect_key($options, $component['extra']['options_enabled']);
+  }
   $component['extra']['items'] = _webform_select_options_to_text($options);
   $value = $value ? $value : key($options);
   return _webform_render_select($component, $value, $filter);
