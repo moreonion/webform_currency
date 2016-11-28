@@ -1,35 +1,19 @@
-.webform-options-table .option-list-table-header {
+.webform-currency-table .option-list-table-header {
   padding: 4px 9px;
+  text-align: left;
 }
 
-.webform-options-table .option-list-label-available {
+.webform-currency-table .option-list-label-available,
+.webform-currency-table .option-list-label-key,
+.webform-currency-table .option-list-label-label,
+.webform-currency-table .option-available,
+.webform-currency-table .option-key,
+.webform-currency-table .option-label {
+  display: inline-block;
+  width: 30%;
+  text-align: center;
+}
+
+.webform-currency-table .option-available {
   float: left;
-  margin-left: 2%;
-  width: 15%;
-}
-
-.webform-options-table .option-list-label-key {
-  float: left;
-  width: 20%;
-}
-
-.webform-options-table .option-list-label-label {
-  float: left;
-  width: 20%;
-  margin-left: 20%;
-}
-
-.webform-options-table .option-available {
-  float: left;
-  width: 17%;
-}
-
-.webform-options-table .option-key {
-  float: left;
-  width: 20%;
-}
-
-.webform-options-table .option-label {
-  margin-left: 20%;
-  width: 40%;
 }
