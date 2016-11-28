@@ -1,35 +1,35 @@
-.option-list-table-header {
+.webform-options-table .option-list-table-header {
   padding: 4px 9px;
 }
 
-.option-list-label-available {
+.webform-options-table .option-list-label-available {
   float: left;
   margin-left: 2%;
   width: 15%;
 }
 
-.option-list-label-key {
+.webform-options-table .option-list-label-key {
   float: left;
   width: 20%;
 }
 
-.option-list-label-label {
+.webform-options-table .option-list-label-label {
   float: left;
   width: 20%;
   margin-left: 20%;
 }
 
-.option-available {
+.webform-options-table .option-available {
   float: left;
   width: 17%;
 }
 
-.option-key {
+.webform-options-table .option-key {
   float: left;
   width: 20%;
 }
 
-.option-label {
+.webform-options-table .option-label {
   margin-left: 20%;
   width: 40%;
 }

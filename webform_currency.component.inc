@@ -63,9 +63,11 @@ function _webform_edit_currency(array $component) {
   $form['extra']['options_enabled'] = array(
     '#tree' => TRUE,
     '#type' => 'container',
+    '#theme' => 'currency_form',
     '#attached' => array(
       'css' => array(drupal_get_path('module', 'webform_currency') . '/webform_currency.css'),
     ),
+    '#element_validate' => ['_webform_currency_edit_validate'],
   );
   // Get the list of currencies previously stored for this component.
   // The order is the same as in the DB.
@@ -112,8 +114,7 @@ function _webform_edit_currency(array $component) {
     );
     $delta++;
   }
-  $form['extra']['options_enabled']['#theme'] = 'currency_form';
-  $form['extra']['options_enabled']['#element_validate'] = array('_webform_currency_edit_validate');
+  unset($form['extra']['items']);
 
   return $form;
 }

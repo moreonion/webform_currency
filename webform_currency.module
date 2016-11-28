@@ -81,20 +81,17 @@ function theme_currency_form(array $variables) {
     );
   }
 
-  $output = '<div class="form-item">';
-  $output .= theme(
-    'table',
-    array(
-      'header'     => $header,
-      'rows'       => $rows,
-      'attributes' => array(
-        'id'    => $table_id,
-        'class' => array('field-multiple-table'),
-      ),
-    )
-  );
-
-  $output .= '</div>';
+  $table = [
+    '#theme' => 'table',
+    '#theme_wrappers' => ['form_element'],
+    '#header' => $header,
+    '#rows' => $rows,
+  ];
+  $table['#attributes'] = [
+    'id' => $table_id,
+    'class' => ['webform-options-table', 'webform-currency-table'],
+  ];
+  $output .= drupal_render($table);
 
   drupal_add_tabledrag($table_id, 'order', 'sibling', $order_class);
 
