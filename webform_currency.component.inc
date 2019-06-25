@@ -38,6 +38,31 @@ function _webform_defaults_currency() {
 }
 
 /**
+ * Helper function to choose items from an associative array.
+ *
+ * This is almost the same as `array_intersect_key($all_options, $selection)`
+ * except that it uses the order of $selection instead of $all_options.
+ *
+ * @param array $all_options
+ *   Array containing available values and their labels.
+ * @param array $selection
+ *   Sorted array of values that which’s options should be returned.
+ *
+ * @param array
+ *   All options from $all_options which’s keys are present in the $selection
+ *   in the order of their occurence in $selection.
+ */
+function _webform_currency_choose_options(array $all_options, array $selection) {
+  $options = [];
+  foreach ($selection as $key) {
+    if (isset($all_options[$key])) {
+      $options[$key] = $selection[$key];
+    }
+  }
+  return $options;
+}
+
+/**
  * Implements _webform_edit_[component]().
  *
  * Every currency components stores the list of currencies selected by the
@@ -74,7 +99,7 @@ function _webform_edit_currency(array $component) {
   $all_options = webform_currency_options();
   $enabled_options = $component['extra']['options_enabled'];
   // Only currency ISO codes are stored in the DB, get the currency names.
-  $options = array_intersect_key($all_options, $enabled_options);
+  $options = _webform_currency_choose_options($all_options, $enabled_options);
   // Prepare the complete currency list: first the previously selected currencies,
   // then the rest.
   $options += $all_options;
@@ -172,7 +197,7 @@ function _webform_render_currency(array $component, array $value = NULL, $filter
   // maintainability beats performance here.
   $options = webform_currency_options();
   if ($component['extra']['options_enabled']) {
-    $options = array_intersect_key($options, $component['extra']['options_enabled']);
+    $options = _webform_currency_choose_options($options, $component['extra']['options_enabled']);
   }
   $component['extra']['items'] = _webform_select_options_to_text($options);
   $value = $value ? $value : key($options);
