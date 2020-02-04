@@ -357,11 +357,9 @@ function _webform_form_builder_properties_currency() {
 /**
  * Callback set in _webform_form_builder_properties_currency().
  */
-function webform_currency_form_builder_property_currency_form(&$form_state, $form_type, $element, $property) {
-  $edit = _webform_edit_currency($element['#webform_component']);
+function webform_currency_form_builder_property_currency_form($component, $edit, &$form_state, $property) {
   $form['options_enabled'] = $edit['extra']['options_enabled'] + array(
     '#form_builder' => array('property_group' => 'options'),
   );
-
   return $form;
 }
