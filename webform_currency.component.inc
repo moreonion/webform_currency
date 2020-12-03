@@ -307,16 +307,19 @@ function _webform_csv_headers_currency(array $component, array $export_options) 
  *   A Webform component array.
  * @param array $export_options
  *   An array of options that may configure export of this field.
- * @param array $value
+ * @param array|null $value
  *   An array of information containing the submission result, directly
  *   correlating to the webform_submitted_data database schema.
+ *   NULL might be passed if there is no value for this component in a
+ *   submission (ie. if the component was added to the form after the submission
+ *   was made).
  *
  * @return string
  *   An array of items to be added to the CSV file. Each value within the array
  *   will be another column within the file. This function is called once for
  *   every row of data.
  */
-function _webform_csv_data_currency(array $component, array $export_options, array $value) {
+function _webform_csv_data_currency(array $component, array $export_options, $value) {
   return isset($value[0]) ? $value[0] : '';
 }
 
